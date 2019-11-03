@@ -303,14 +303,27 @@ let userInput = userInputCode();
 // Timer      : Number
 
 let playerObject = {
-  id: "string",
+  id: "",
   wins: 0,
   losses: 0,
-  alias: "string",
-  currentSelection: "string: paper | scissors | rock"
+  alias: "",
+  currentSelection: ""
 };
 
 // Initialise database.
+const firebaseConfig = {
+  apiKey: "AIzaSyCeDbX4zYNhZZYgbM1trIFWMJleZBetyDE",
+  authDomain: "maddie-test-aee71.firebaseapp.com",
+  databaseURL: "https://maddie-test-aee71.firebaseio.com",
+  projectId: "maddie-test-aee71",
+  storageBucket: "maddie-test-aee71.appspot.com",
+  messagingSenderId: "396098819277",
+  appId: "1:396098819277:web:c67c1624d8211a35860584"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+let database = firebase.database();
 
 // Join game.
 
