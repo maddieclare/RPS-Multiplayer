@@ -21,10 +21,14 @@ let gameCode = function() {
 
   function startTheGame(opponentName) {
     // Sets opponent alias.
+    opponentAlias = opponentName;
+    console.log(opponentAlias);
     // Starts a new round.
+    startNewRound();
   }
 
   function startNewRound() {
+    console.log("New round started.")
     // Clears previous player selection.
     // Starts timer.
     // Displays user selection screen.
@@ -252,3 +256,5 @@ let databaseModifyCode = function() {
 }
 
 let databaseModify = databaseModifyCode();
+
+game.start("Opponent");
