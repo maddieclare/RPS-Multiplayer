@@ -170,13 +170,16 @@ let gameCode = function() {
 
   function connectionLostWithOpponent() {
     // Alert player connection has dropped.
+    console.log("Connection lost!")
     // Wait for new opponent.
+    userScreen.awaitingOpponent();
   }
 
   function errorHandlingFunction(error) {
     // Log error in console.
     console.log(error);
     // Show players error screen.
+    userScreen.error();
   }
 
   return {
@@ -206,6 +209,7 @@ let userScreenCode = function() {
   }
 
   function awaitingOpponentScreen() {
+    console.log("Waiting for another player to join...")
     // Displays waiting screen.
   }
 
@@ -242,6 +246,7 @@ let userScreenCode = function() {
   }
 
   function showErrorScreen() {
+    console.log("This will eventually be an error screen.")
     // Alerts player that there is an error (asks them to refresh browser?).
   }
 
@@ -308,7 +313,7 @@ let playerObject = {
 
 // Player selections (change these later to call from database):
 let playerSelections = {
-  user: "",
+  user: "scissors",
   opponent: "paper"
 };
 
@@ -354,4 +359,4 @@ let databaseModifyCode = function() {
 
 let databaseModify = databaseModifyCode();
 
-game.tie();
+game.selection(playerSelections);
