@@ -281,6 +281,7 @@ let userInputCode = function() {
 
   function submitNewUserAlias(newAlias) {
     // Update playerObject with player alias.
+    console.log("Your new alias is: " + newAlias);
   }
 
   return {
