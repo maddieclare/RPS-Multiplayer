@@ -39,7 +39,9 @@ let gameCode = function() {
 
   function userSelectionInput(selection) {
     // Updates player selection in playerObject.
+    databaseModify.selection(selection);
     // Shows screen letting player know opponent is still selecting.
+    userScreen.awaitingOpponentChoice(selection);
   }
 
   function eitherPlayerMakesASelection(playerSelections) {
@@ -130,7 +132,8 @@ let userScreenCode = function() {
     // Displays player choice screen.
   }
 
-  function awaitingOpponentsMoveScreen(usersChoice) {
+  function awaitingOpponentMoveScreen(userChoice) {
+    console.log("Waiting for opponent selection. Your pick: " + userChoice);
     // Displays awaiting opponent choice screen.
   }
 
@@ -163,7 +166,7 @@ let userScreenCode = function() {
     welcome: welcomeScreen,
     awaitingOpponent: awaitingOpponentScreen,
     choose: chooseYourMoveScreen,
-    awaitingOpponentsChoice: awaitingOpponentsMoveScreen,
+    awaitingOpponentChoice: awaitingOpponentMoveScreen,
     opponentHasSelected: showThatOtherPlayerHasSelected,
     win: youWinScreen,
     lose: youLoseScreen,
@@ -243,6 +246,7 @@ let databaseModifyCode = function() {
   }
 
   function addUsersSelection(selection) {
+    console.log("Player selection (" + selection + ") added to database.");
     // Updates player object with new selection (paper, scissors or rock).
   }
 
@@ -263,4 +267,4 @@ let databaseModifyCode = function() {
 
 let databaseModify = databaseModifyCode();
 
-game.newRound();
+game.userSelected("rock");
