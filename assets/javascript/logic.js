@@ -89,9 +89,11 @@ let gameCode = function() {
     console.log("Time's up!");
     // Else if only 1 player has made a selection, that player wins.
     if (playerSelections.user) {
+      console.log("You win!")
       userWins({ playerSelections: playerSelections, source: "timer" });
     // If neither player has selected, show time up screen (both players lose a point).
     } else {
+      console.log("You lose :(")
       userLoses({ playerSelections: playerSelections, source: "timer" });
     }
   }
@@ -136,20 +138,34 @@ let gameCode = function() {
   }
 
   function userWins() {
-    // Show win screen.
     // Add 1 to player win count.
+    databaseModify.win();
+    // Show win screen.
+    userScreen.win();
     // Call new round function after a few seconds.
+    setTimeout(function() {
+      game.newRound();
+    }, 2000);
   }
 
   function userLoses() {
-    // Show lose screen.
     // Add 1 to player loss count.
+    databaseModify.lose();
+    // Show lose screen.
+    userScreen.lose();
     // Call new round function after a few seconds
+    setTimeout(function() {
+      game.newRound();
+    }, 2000);
   }
 
   function userTies() {
     // Show tie screen.
+    userScreen.tied();
     // Call new round function after a few seconds.
+    setTimeout(function() {
+      game.newRound();
+    }, 2000);
   }
 
   function connectionLostWithOpponent() {
@@ -171,6 +187,9 @@ let gameCode = function() {
     userSelected: userSelectionInput,
     selection: eitherPlayerMakesASelection,
     timeUp: timerRanOut,
+    win: userWins,
+    lose: userLoses,
+    tie: userTies,
     opponentDropped: connectionLostWithOpponent,
     error: errorHandlingFunction
   };
@@ -289,8 +308,8 @@ let playerObject = {
 
 // Player selections (change these later to call from database):
 let playerSelections = {
-  user: "hammer",
-  opponent: "scissors"
+  user: "",
+  opponent: "paper"
 };
 
 // Time's up = game.timeUp(playerSelections)
@@ -335,4 +354,4 @@ let databaseModifyCode = function() {
 
 let databaseModify = databaseModifyCode();
 
-game.selection(playerSelections);
+game.tie();
