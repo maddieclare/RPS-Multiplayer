@@ -180,6 +180,15 @@ let userInputCode = function() {
 };
 
 // Database code.
+
+// Database structure:
+  // Heading    : Data
+  // Session ID : Unique ID for the game session
+  // Player One : playerObject
+  // Player Two : playerObject
+  // Live       : Boolean
+  // Timer      : Number
+
 let playerObject = {
   id: "string",
   wins: 0,
@@ -188,8 +197,51 @@ let playerObject = {
   currentSelection: "string: paper | scissors | rock"
 };
 
+// Initialise database.
+
+// Join game.
+
+// Event listener for database changes.
+
+// Opponent join = game.start(opponentName)
+
+// Player selections.
+
+// Time's up = game.timeUp(playerSelections)
+
 let databaseModify = databaseModifyCode();
 
 let databaseModifyCode = function() {
-  // Database functions go here.
+  function clearPreviousPlayerSelections() {
+    // Clears out player selections from the previous round.
+  }
+
+  function addPlayerWinCount() {
+    // Increases wins count in playerObject by 1.
+  }
+
+  function addPlayerLossCount() {
+    // Increases losses count in playerObject by 1.
+  }
+
+  function addNewPlayerAlias(newAlias) {
+    // Updates player object with new alias.
+  }
+
+  function addUsersSelection(selection) {
+    // Updates player object with new selection (paper, scissors or rock).
+  }
+
+  function startDatabaseTurnTimer() {
+    // Starts the timer in the database.
+  }
+
+  return {
+    clearSelections: clearPreviousPlayerSelections,
+    win: addPlayerWinCount,
+    lose: addPlayerLossCount,
+    alias: addNewPlayerAlias,
+    selection: addUsersSelection,
+    startTimer: startDatabaseTurnTimer
+  };
 }
