@@ -16,7 +16,7 @@ let gameCode = function() {
     console.log(userAlias);
     databaseModify.alias(newAlias);
     userScreen.update();
-    console.log("setUserAlias working")
+    console.log("setUserAlias working");
   }
 
   function startTheGame(opponentName) {
@@ -28,7 +28,7 @@ let gameCode = function() {
   }
 
   function startNewRound() {
-    console.log("New round started.")
+    console.log("New round started.");
     // Clears previous player selection.
     databaseModify.clearSelections();
     // Starts timer.
@@ -45,18 +45,44 @@ let gameCode = function() {
   }
 
   function eitherPlayerMakesASelection(playerSelections) {
-    // If statement:
-      // If both players have selected:
-        // Display player/opponent choices.
-        // Call determineOutcome function.
-        // Sub-if statement:
-          // Show win screen for one player and loss for the other, or tie for both.
+    // If both players have selected:
+    if (playerSelections.user && playerSelections.opponent) {
+      // Display player/opponent choices.
+      console.log(
+        "Your choice: " +
+          playerSelections.user +
+          ". Your opponent's choice: " +
+          playerSelections.opponent +
+          "."
+      );
+      // Call determineOutcome function.
+      let result = determineOutcome(playerSelections);
+      console.log("You " + result + "!");
+      // Sub-if statement:
+      // Show win screen for one player and loss for the other, or tie for both.
+      if (result == "win") {
+        userWins({ playerSelections: playerSelections, source: "selections" });
+      } else if (result == "tie") {
+        userTies({ playerSelections: playerSelections, source: "selections" });
+      } else if (result == "lose") {
+        userLoses({ playerSelections: playerSelections, source: "selections" });
+      } else {
+        errorHandlingFunction({
+          error: "Non-standard result",
+          input: result,
+          location: "eitherPlayerMakesASelection"
+        });
+      }
       // Else if only player 1 has made a selection:
-        // Show player selection.
-        // Let player know opponent is still choosing.
+    } else if (playerSelections.user) {
+      // Show player selection.
+      // Let player know opponent is still choosing.
+      userScreen.awaitingOpponentChoice(playerSelections.user);
       // Else if only opponent has made a selection:
-        // Tell player to hurry up.
-      // Else log an error.
+    } else if (playerSelections.opponent) {
+      // Tell player to hurry up.
+      userScreen.opponentHasSelected();
+    }
   }
 
   function timerRanOut(playerSelections) {
@@ -66,12 +92,41 @@ let gameCode = function() {
 
   function determineOutcome(playerSelections) {
     // Get player/opponent selections.
+    let userSelection = playerSelections.user;
+    let opponentSelection = playerSelections.opponent;
     // If both players make the same selection, return tie result.
-    // Else if:
+    if (userSelection == opponentSelection) {
+      return "tie";
+      // Else if:
       // Player guesses rock and opponent guesses scissors, player wins (else they lose).
+    } else if (userSelection == "rock") {
+      if (opponentSelection == "scissors") {
+        return "win";
+      } else {
+        return "lose";
+      }
       // Player guesses paper and opponent guesses rock, player wins (else they lose).
+    } else if (userSelection == "paper") {
+      if (opponentSelection == "rock") {
+        return "win";
+      } else {
+        return "lose";
+      }
       // Player guesses scissors and opponent guesses paper, player wins (else they lose).
+    } else if (userSelection == "scissors") {
+      if (opponentSelection == "paper") {
+        return "win";
+      } else {
+        return "lose";
+      }
       // Else return an error.
+    } else {
+      errorHandlingFunction({
+        error: "Invalid user or opponent selections",
+        input: playerSelections,
+        location: "determineOutcomes"
+      });
+    }
   }
 
   function userWins() {
@@ -97,7 +152,9 @@ let gameCode = function() {
   }
 
   function errorHandlingFunction(error) {
-    // Log error in console and alert players.
+    // Log error in console.
+    console.log(error);
+    // Show players error screen.
   }
 
   return {
@@ -138,6 +195,7 @@ let userScreenCode = function() {
   }
 
   function showThatOtherPlayerHasSelected() {
+    console.log("Your opponent has already chosen. Better hurry!");
     // Displays hurry up screen.
   }
 
@@ -200,12 +258,12 @@ let userInput = userInputCode();
 // Database code.
 
 // Database structure:
-  // Heading    : Data
-  // Session ID : Unique ID for the game session
-  // Player One : playerObject
-  // Player Two : playerObject
-  // Live       : Boolean
-  // Timer      : Number
+// Heading    : Data
+// Session ID : Unique ID for the game session
+// Player One : playerObject
+// Player Two : playerObject
+// Live       : Boolean
+// Timer      : Number
 
 let playerObject = {
   id: "string",
@@ -223,13 +281,17 @@ let playerObject = {
 
 // Opponent join = game.start(opponentName)
 
-// Player selections.
+// Player selections (change these later to call from database):
+let playerSelections = {
+  user: "hammer",
+  opponent: "scissors"
+};
 
 // Time's up = game.timeUp(playerSelections)
 
 let databaseModifyCode = function() {
   function clearPreviousPlayerSelections() {
-    console.log("Previous selections cleared.")
+    console.log("Previous selections cleared.");
     // Clears out player selections from the previous round.
   }
 
@@ -251,7 +313,7 @@ let databaseModifyCode = function() {
   }
 
   function startDatabaseTurnTimer() {
-    console.log("Timer started.")
+    console.log("Timer started.");
     // Starts the timer in the database.
   }
 
@@ -263,8 +325,8 @@ let databaseModifyCode = function() {
     selection: addUsersSelection,
     startTimer: startDatabaseTurnTimer
   };
-}
+};
 
 let databaseModify = databaseModifyCode();
 
-game.userSelected("rock");
+game.selection(playerSelections);
