@@ -205,6 +205,7 @@ let userScreenCode = function() {
   function welcomeScreen() {
     console.log("Welcome!");
     // Displays welcome screen.
+    // Instructions?
     // Prompts player to enter alias.
   }
 
@@ -229,14 +230,17 @@ let userScreenCode = function() {
   }
 
   function youWinScreen() {
+    console.log("Showing player win screen.")
     // Displays player win screen.
   }
 
   function youLoseScreen() {
+    console.log("Showing player lose screen.")
     // Displays player lose screen.
   }
 
   function youTiedScreen() {
+    console.log("Showing tie screen.")
     // Displays tie screen.
   }
 
@@ -268,9 +272,11 @@ let userScreen = userScreenCode();
 
 // User input functions.
 let userInputCode = function() {
-  function usersMoveSelected(selection) {
+  function userMoveSelected(selection) {
     // Selection either paper, scissors or rock.
+    console.log("Your selection: " + selection)
     // Call game.selection function.
+    game.selection(selection);
   }
 
   function submitNewUserAlias(newAlias) {
@@ -278,7 +284,7 @@ let userInputCode = function() {
   }
 
   return {
-    select: usersMoveSelected,
+    select: userMoveSelected,
     newAlias: submitNewUserAlias
   };
 };
@@ -314,7 +320,7 @@ let playerObject = {
 // Player selections (change these later to call from database):
 let playerSelections = {
   user: "scissors",
-  opponent: "paper"
+  opponent: "rock"
 };
 
 // Time's up = game.timeUp(playerSelections)
@@ -358,5 +364,3 @@ let databaseModifyCode = function() {
 };
 
 let databaseModify = databaseModifyCode();
-
-game.selection(playerSelections);
