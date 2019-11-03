@@ -8,12 +8,12 @@ let game = gameCode();
 
 let gameCode = function() {
   function initialiseTheGame() {
-    // Displays welcome screen.
+    // Calls welcomeScreen function.
   }
 
   function setUserAlias(newAlias) {
-    // Lets user set their alias.
-    // Adds user alias to playerObject.
+    // Lets player set their alias.
+    // Stores player alias.
   }
 
   function startTheGame(opponentName) {
@@ -101,11 +101,82 @@ let gameCode = function() {
   };
 };
 
-// User interface.
+// User interface functions.
 let userScreen = userScreenCode();
 
 let userScreenCode = function() {
-  // UI change functions go here.
+  function welcomeScreen() {
+    // Displays welcome screen.
+    // Prompts player to enter alias.
+  }
+
+  function awaitingOpponentScreen() {
+    // Displays waiting screen.
+  }
+
+  function chooseYourMoveScreen() {
+    // Displays player choice screen.
+  }
+
+  function awaitingOpponentsMoveScreen(usersChoice) {
+    // Displays awaiting opponent choice screen.
+  }
+
+  function showThatOtherPlayerHasSelected() {
+    // Displays hurry up screen.
+  }
+
+  function youWinScreen() {
+    // Displays player win screen.
+  }
+
+  function youLoseScreen() {
+    // Displays player lose screen.
+  }
+
+  function youTiedScreen() {
+    // Displays tie screen.
+  }
+
+  function updateUserDetailsWindow() {
+    // Show player alias, wins and losses in corner.
+  }
+
+  function showErrorScreen() {
+    // Alerts player that there is an error (asks them to refresh browser?).
+  }
+
+  return {
+    welcome: welcomeScreen,
+    awaitingOpponent: awaitingOpponentScreen,
+    choose: chooseYourMoveScreen,
+    awaitingOpponentsChoice: awaitingOpponentsMoveScreen,
+    opponentHasSelected: showThatOtherPlayerHasSelected,
+    win: youWinScreen,
+    lose: youLoseScreen,
+    tied: youTiedScreen,
+    update: updateUserDetailsWindow,
+    error: showErrorScreen
+  };
+};
+
+// User input functions.
+let userInput = userInputCode();
+
+let userInputCode = function() {
+  function usersMoveSelected(selection) {
+    // Selection either paper, scissors or rock.
+    // Call game.selection function.
+  }
+
+  function submitNewUserAlias(newAlias) {
+    // Update playerObject with player alias.
+  }
+
+  return {
+    select: usersMoveSelected,
+    newAlias: submitNewUserAlias
+  };
 };
 
 // Database code.
