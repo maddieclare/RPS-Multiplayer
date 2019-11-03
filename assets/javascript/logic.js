@@ -4,11 +4,9 @@ let opponentAlias = "";
 let wins = 0;
 let losses = 0;
 
-let game = gameCode();
-
 let gameCode = function() {
   function initialiseTheGame() {
-    // Calls welcomeScreen function.
+    userScreen.welcome();
   }
 
   function setUserAlias(newAlias) {
@@ -101,11 +99,12 @@ let gameCode = function() {
   };
 };
 
-// User interface functions.
-let userScreen = userScreenCode();
+let game = gameCode();
 
+// User interface functions.
 let userScreenCode = function() {
   function welcomeScreen() {
+    console.log("Welcome!");
     // Displays welcome screen.
     // Prompts player to enter alias.
   }
@@ -160,9 +159,9 @@ let userScreenCode = function() {
   };
 };
 
-// User input functions.
-let userInput = userInputCode();
+let userScreen = userScreenCode();
 
+// User input functions.
 let userInputCode = function() {
   function usersMoveSelected(selection) {
     // Selection either paper, scissors or rock.
@@ -178,6 +177,8 @@ let userInputCode = function() {
     newAlias: submitNewUserAlias
   };
 };
+
+let userInput = userInputCode();
 
 // Database code.
 
@@ -208,8 +209,6 @@ let playerObject = {
 // Player selections.
 
 // Time's up = game.timeUp(playerSelections)
-
-let databaseModify = databaseModifyCode();
 
 let databaseModifyCode = function() {
   function clearPreviousPlayerSelections() {
@@ -245,3 +244,5 @@ let databaseModifyCode = function() {
     startTimer: startDatabaseTurnTimer
   };
 }
+
+let databaseModify = databaseModifyCode();
