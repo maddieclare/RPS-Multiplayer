@@ -12,6 +12,11 @@ let gameCode = function() {
   function setUserAlias(newAlias) {
     // Lets player set their alias.
     // Stores player alias.
+    userAlias = newAlias;
+    console.log(userAlias);
+    databaseModify.alias(newAlias);
+    userScreen.update();
+    console.log("setUserAlias working")
   }
 
   function startTheGame(opponentName) {
@@ -138,6 +143,7 @@ let userScreenCode = function() {
   }
 
   function updateUserDetailsWindow() {
+    console.log("User info updated.");
     // Show player alias, wins and losses in corner.
   }
 
