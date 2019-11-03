@@ -30,8 +30,11 @@ let gameCode = function() {
   function startNewRound() {
     console.log("New round started.")
     // Clears previous player selection.
+    databaseModify.clearSelections();
     // Starts timer.
+    databaseModify.startTimer();
     // Displays user selection screen.
+    userScreen.choose();
   }
 
   function userSelectionInput(selection) {
@@ -123,6 +126,7 @@ let userScreenCode = function() {
   }
 
   function chooseYourMoveScreen() {
+    console.log("Showing player choice screen.");
     // Displays player choice screen.
   }
 
@@ -222,6 +226,7 @@ let playerObject = {
 
 let databaseModifyCode = function() {
   function clearPreviousPlayerSelections() {
+    console.log("Previous selections cleared.")
     // Clears out player selections from the previous round.
   }
 
@@ -242,6 +247,7 @@ let databaseModifyCode = function() {
   }
 
   function startDatabaseTurnTimer() {
+    console.log("Timer started.")
     // Starts the timer in the database.
   }
 
@@ -257,4 +263,4 @@ let databaseModifyCode = function() {
 
 let databaseModify = databaseModifyCode();
 
-game.start("Opponent");
+game.newRound();
