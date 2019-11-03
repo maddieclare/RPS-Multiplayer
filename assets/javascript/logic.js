@@ -86,8 +86,14 @@ let gameCode = function() {
   }
 
   function timerRanOut(playerSelections) {
-    // If neither player has selected, show time up screen (both players lose a point).
+    console.log("Time's up!");
     // Else if only 1 player has made a selection, that player wins.
+    if (playerSelections.user) {
+      userWins({ playerSelections: playerSelections, source: "timer" });
+    // If neither player has selected, show time up screen (both players lose a point).
+    } else {
+      userLoses({ playerSelections: playerSelections, source: "timer" });
+    }
   }
 
   function determineOutcome(playerSelections) {
