@@ -319,14 +319,6 @@ let userInput = userInputCode();
 // Live       : Boolean
 // Timer      : Number
 
-// let playerObject = {
-//   id: "",
-//   wins: 0,
-//   losses: 0,
-//   alias: "",
-//   currentSelection: ""
-// };
-
 // Initialise database.
 const firebaseConfig = {
   apiKey: "AIzaSyCeDbX4zYNhZZYgbM1trIFWMJleZBetyDE",
@@ -342,10 +334,6 @@ firebase.initializeApp(firebaseConfig);
 
 let database = firebase.database();
 
-// Join game.
-
-// Event listener for database changes.
-
 // Opponent join = game.start(opponentName)
 function testButtonClick() {
   console.log("Test button working");
@@ -360,15 +348,6 @@ let playerSelections = {
 };
 
 let databaseModifyCode = function() {
-  function clearPreviousPlayerSelections() {
-    console.log("Previous selections cleared.");
-    // Clears out player selections from the previous round.
-  }
-
-  function addPlayerWinCount() {
-    // Increases wins count in playerObject by 1.
-  }
-
   function updateDatabase() {
     console.log("Setting:");
     console.log(userObject.id);
@@ -378,10 +357,6 @@ let databaseModifyCode = function() {
       .database()
       .ref(userObject.id)
       .set(userObject);
-  }
-
-  function addPlayerLossCount() {
-    // Increases losses count in playerObject by 1.
   }
 
   function addNewPlayerAlias() {
@@ -395,6 +370,7 @@ let databaseModifyCode = function() {
     });
   }
 
+  // Event listener for database changes.
   function createUserInDatabaseAndListen() {
     database
       .ref("Players")
@@ -410,16 +386,6 @@ let databaseModifyCode = function() {
           console.log(snapshot.val());
         });
       });
-  }
-
-  function addUsersSelection(selection) {
-    console.log("Player selection (" + selection + ") added to database.");
-    // Updates player object with new selection (paper, scissors or rock).
-  }
-
-  function startDatabaseTurnTimer() {
-    console.log("Timer started.");
-    // Starts the timer in the database.
   }
 
   return {
