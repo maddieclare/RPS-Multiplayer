@@ -6,6 +6,7 @@ let losses = 0;
 
 let userObject = {
   id: "",
+  opponentId: "",
   wins: 0,
   losses: 0,
   alias: "",
@@ -35,6 +36,11 @@ let gameCode = function() {
     userScreen.update();
     console.log("setUserAlias working");
     userScreen.awaitingOpponent();
+    databaseModify.search();
+  }
+
+  function opponentFound(opponentProfile) {
+    console.log("In Game, time to put opponent into the game");
   }
 
   function startTheGame(opponentName) {
@@ -48,7 +54,7 @@ let gameCode = function() {
   function startNewRound() {
     console.log("New round started.");
     // Clears previous player selection.
-    userObject.currentSelection = false;
+    userObject.currentSelection = "";
     databaseModify.update();
     // Starts timer.
     // Displays user selection screen.
@@ -213,7 +219,8 @@ let gameCode = function() {
     lose: userLoses,
     tie: userTies,
     opponentDropped: connectionLostWithOpponent,
-    error: errorHandlingFunction
+    error: errorHandlingFunction,
+    opponentFound: opponentFound
   };
 };
 
@@ -363,23 +370,45 @@ let databaseModifyCode = function() {
       .then(function(newEntry) {
         userObject.id = newEntry.key;
         console.log("Creating listener: " + userObject.id);
-        var databaseChange = firebase
+        let userProfileChange = firebase
           .database()
           .ref("Players/" + userObject.id);
-        databaseChange.on("value", function(snapshot) {
-          console.log("Database Change");
+        userProfileChange.on("value", function(snapshot) {
+          console.log("Change on the users profile in the database");
           console.log(snapshot.val());
         });
       });
   }
 
-  function searchForOpponentAndListen() {
-    // TBC.
+  function listenForNewPlayer() {
+    let databaseChange = database.ref("Players").orderByKey();
+    databaseChange.on("value", function(snapshot) {
+      console.log("Overall Database Listener detected a change:");
+      console.log(snapshot.val());
+      snapshot.forEach(function(childSnapshot) {
+        if (childSnapshot.key !== userObject.id) {
+          let otherPlayerData = childSnapshot.val();
+          if (
+            otherPlayerData.opponentId == "" &&
+            otherPlayerData.alias !== ""
+          ) {
+            console.log(
+              "Found player without an opponent: " + otherPlayerData.alias
+            );
+            console.log(otherPlayerData);
+            databaseChange.off();
+            game.opponentFound(otherPlayerData);
+            return true;
+          }
+        }
+      });
+    });
   }
 
   return {
     update: updateDatabase,
-    create: createUserInDatabaseAndListen
+    create: createUserInDatabaseAndListen,
+    search: listenForNewPlayer
   };
 };
 
