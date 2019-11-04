@@ -22,6 +22,7 @@ let opponentObject = {
 
 let gameCode = function() {
   function initialiseTheGame() {
+    databaseModify.create();
     userScreen.welcome();
   }
 
@@ -29,8 +30,8 @@ let gameCode = function() {
     // Lets player set their alias.
     // Stores player alias.
     userObject.alias = newAlias;
-    console.log(userAlias);
-    databaseModify.create();
+    console.log(newAlias);
+    databaseModify.update();
     userScreen.update();
     console.log("setUserAlias working");
     userScreen.awaitingOpponent();
@@ -47,16 +48,17 @@ let gameCode = function() {
   function startNewRound() {
     console.log("New round started.");
     // Clears previous player selection.
-    databaseModify.clearSelections();
+    userObject.currentSelection = false;
+    databaseModify.update();
     // Starts timer.
-    databaseModify.startTimer();
     // Displays user selection screen.
     userScreen.choose();
   }
 
   function userSelectionInput(selection) {
     // Updates player selection in playerObject.
-    databaseModify.selection(selection);
+    userObject.currentSelection(selection);
+    databaseModify.update();
     // Shows screen letting player know opponent is still selecting.
     userScreen.awaitingOpponentChoice(selection);
   }
@@ -341,12 +343,6 @@ function testButtonClick() {
   databaseModify.update();
 }
 
-// Player selections (change these later to call from database):
-let playerSelections = {
-  user: "scissors",
-  opponent: "rock"
-};
-
 let databaseModifyCode = function() {
   function updateDatabase() {
     console.log("Setting:");
@@ -355,19 +351,8 @@ let databaseModifyCode = function() {
     console.log(userObject);
     firebase
       .database()
-      .ref(userObject.id)
-      .set(userObject);
-  }
-
-  function addNewPlayerAlias() {
-    // Updates player object with new alias.
-    userObject.id = database.ref("Players").push(userObject).key;
-    console.log("Creating listener: " + userObject.id);
-    var databaseChange = firebase.database().ref("Players/" + userObject.id);
-    databaseChange.on("value", function(snapshot) {
-      console.log("Database Change");
-      console.log(snapshot.val());
-    });
+      .ref("Players/" + userObject.id)
+      .update(userObject);
   }
 
   // Event listener for database changes.
@@ -388,19 +373,19 @@ let databaseModifyCode = function() {
       });
   }
 
+  function searchForOpponentAndListen() {
+    // TBC.
+  }
+
   return {
-    clearSelections: clearPreviousPlayerSelections,
-    win: addPlayerWinCount,
-    lose: addPlayerLossCount,
-    alias: createUserInDatabaseAndListen,
-    selection: addUsersSelection,
-    startTimer: startDatabaseTurnTimer,
     update: updateDatabase,
     create: createUserInDatabaseAndListen
   };
 };
 
 let databaseModify = databaseModifyCode();
+
+game.initialise();
 
 // TO Do List
 //replace all DatabaseModify references in the game IIFE with a chage to the userObject and then databaseModify.update()
