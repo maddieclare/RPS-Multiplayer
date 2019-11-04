@@ -33,11 +33,16 @@
         </div>
       </div>
     </form>
+    <div><button id="testButton">Test</button></div>
     <script>
       $("#alias-submit").on("click", function(event) {
         event.preventDefault();
-        playerObject.id = $("#input-alias").val();
-        console.log(playerObject);
+        let typedAlias = $("#input-alias").val()
+        game.newUserAlias(typedAlias)
+      })
+
+      $("#testButton").on("click",function(){
+        testButtonClick()
       })
     </script>
     <script src="assets/javascript/logic.js"></script>

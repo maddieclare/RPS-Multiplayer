@@ -4,6 +4,22 @@ let opponentAlias = "";
 let wins = 0;
 let losses = 0;
 
+let userObject = {
+  id: "",
+  wins: 0,
+  losses: 0,
+  alias: "",
+  currentSelection: ""
+};
+
+let opponentObject = {
+  id: "",
+  wins: 0,
+  losses: 0,
+  alias: "",
+  currentSelection: ""
+};
+
 let gameCode = function() {
   function initialiseTheGame() {
     userScreen.welcome();
@@ -12,11 +28,12 @@ let gameCode = function() {
   function setUserAlias(newAlias) {
     // Lets player set their alias.
     // Stores player alias.
-    userAlias = newAlias;
+    userObject.alias = newAlias;
     console.log(userAlias);
-    databaseModify.alias(newAlias);
+    databaseModify.create();
     userScreen.update();
     console.log("setUserAlias working");
+    userScreen.awaitingOpponent();
   }
 
   function startTheGame(opponentName) {
@@ -89,11 +106,11 @@ let gameCode = function() {
     console.log("Time's up!");
     // Else if only 1 player has made a selection, that player wins.
     if (playerSelections.user) {
-      console.log("You win!")
+      console.log("You win!");
       userWins({ playerSelections: playerSelections, source: "timer" });
-    // If neither player has selected, show time up screen (both players lose a point).
+      // If neither player has selected, show time up screen (both players lose a point).
     } else {
-      console.log("You lose :(")
+      console.log("You lose :(");
       userLoses({ playerSelections: playerSelections, source: "timer" });
     }
   }
@@ -170,7 +187,7 @@ let gameCode = function() {
 
   function connectionLostWithOpponent() {
     // Alert player connection has dropped.
-    console.log("Connection lost!")
+    console.log("Connection lost!");
     // Wait for new opponent.
     userScreen.awaitingOpponent();
   }
@@ -210,7 +227,7 @@ let userScreenCode = function() {
   }
 
   function awaitingOpponentScreen() {
-    console.log("Waiting for another player to join...")
+    console.log("Waiting for another player to join...");
     // Displays waiting screen.
   }
 
@@ -230,17 +247,17 @@ let userScreenCode = function() {
   }
 
   function youWinScreen() {
-    console.log("Showing player win screen.")
+    console.log("Showing player win screen.");
     // Displays player win screen.
   }
 
   function youLoseScreen() {
-    console.log("Showing player lose screen.")
+    console.log("Showing player lose screen.");
     // Displays player lose screen.
   }
 
   function youTiedScreen() {
-    console.log("Showing tie screen.")
+    console.log("Showing tie screen.");
     // Displays tie screen.
   }
 
@@ -250,7 +267,7 @@ let userScreenCode = function() {
   }
 
   function showErrorScreen() {
-    console.log("This will eventually be an error screen.")
+    console.log("This will eventually be an error screen.");
     // Alerts player that there is an error (asks them to refresh browser?).
   }
 
@@ -274,7 +291,7 @@ let userScreen = userScreenCode();
 let userInputCode = function() {
   function userMoveSelected(selection) {
     // Selection either paper, scissors or rock.
-    console.log("Your selection: " + selection)
+    console.log("Your selection: " + selection);
     // Call game.selection function.
     game.selection(selection);
   }
@@ -302,13 +319,13 @@ let userInput = userInputCode();
 // Live       : Boolean
 // Timer      : Number
 
-let playerObject = {
-  id: "",
-  wins: 0,
-  losses: 0,
-  alias: "",
-  currentSelection: ""
-};
+// let playerObject = {
+//   id: "",
+//   wins: 0,
+//   losses: 0,
+//   alias: "",
+//   currentSelection: ""
+// };
 
 // Initialise database.
 const firebaseConfig = {
@@ -330,14 +347,17 @@ let database = firebase.database();
 // Event listener for database changes.
 
 // Opponent join = game.start(opponentName)
+function testButtonClick() {
+  console.log("Test button working");
+  userObject.currentSelection = "Testy Selection";
+  databaseModify.update();
+}
 
 // Player selections (change these later to call from database):
 let playerSelections = {
   user: "scissors",
   opponent: "rock"
 };
-
-// Time's up = game.timeUp(playerSelections)
 
 let databaseModifyCode = function() {
   function clearPreviousPlayerSelections() {
@@ -349,12 +369,47 @@ let databaseModifyCode = function() {
     // Increases wins count in playerObject by 1.
   }
 
+  function updateDatabase() {
+    console.log("Setting:");
+    console.log(userObject.id);
+    console.log("To:");
+    console.log(userObject);
+    firebase
+      .database()
+      .ref(userObject.id)
+      .set(userObject);
+  }
+
   function addPlayerLossCount() {
     // Increases losses count in playerObject by 1.
   }
 
-  function addNewPlayerAlias(newAlias) {
+  function addNewPlayerAlias() {
     // Updates player object with new alias.
+    userObject.id = database.ref("Players").push(userObject).key;
+    console.log("Creating listener: " + userObject.id);
+    var databaseChange = firebase.database().ref("Players/" + userObject.id);
+    databaseChange.on("value", function(snapshot) {
+      console.log("Database Change");
+      console.log(snapshot.val());
+    });
+  }
+
+  function createUserInDatabaseAndListen() {
+    database
+      .ref("Players")
+      .push(userObject)
+      .then(function(newEntry) {
+        userObject.id = newEntry.key;
+        console.log("Creating listener: " + userObject.id);
+        var databaseChange = firebase
+          .database()
+          .ref("Players/" + userObject.id);
+        databaseChange.on("value", function(snapshot) {
+          console.log("Database Change");
+          console.log(snapshot.val());
+        });
+      });
   }
 
   function addUsersSelection(selection) {
@@ -371,10 +426,19 @@ let databaseModifyCode = function() {
     clearSelections: clearPreviousPlayerSelections,
     win: addPlayerWinCount,
     lose: addPlayerLossCount,
-    alias: addNewPlayerAlias,
+    alias: createUserInDatabaseAndListen,
     selection: addUsersSelection,
-    startTimer: startDatabaseTurnTimer
+    startTimer: startDatabaseTurnTimer,
+    update: updateDatabase,
+    create: createUserInDatabaseAndListen
   };
 };
 
 let databaseModify = databaseModifyCode();
+
+// TO Do List
+//replace all DatabaseModify references in the game IIFE with a chage to the userObject and then databaseModify.update()
+//add "opponentID" attribute to the user object
+//create a function which is called by the database change event listener which processes the database change - i.e. was the change the opponent selecting something
+//create a function which searches the player database for a player without an opponent and then adds them to the userObject.oppnent
+//create a function which after the opponent has been found adds an event listener for changes to the opponents info in the database
