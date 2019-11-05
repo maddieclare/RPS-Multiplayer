@@ -5,7 +5,7 @@ let wins = 0;
 let losses = 0;
 let userUniqueId = "";
 let opponentReady = false;
-let currentRound = 0
+let currentRound = 0;
 
 let userObject = {
   id: "",
@@ -14,7 +14,7 @@ let userObject = {
   losses: 0,
   alias: "",
   currentSelection: "",
-  round:0
+  round: 0
 };
 
 let opponentObject = {
@@ -23,7 +23,7 @@ let opponentObject = {
   losses: 0,
   alias: "",
   currentSelection: "",
-  round:0
+  round: 0
 };
 
 let gameCode = function() {
@@ -81,7 +81,12 @@ let gameCode = function() {
       console.log("Opponent is now ready");
       opponentReady = true;
       startTheGame();
-    } else if (opponentReady && opponentObject.currentSelection && userObject.round == currentRound && opponentObject.round == currentRound) {
+    } else if (
+      opponentReady &&
+      opponentObject.currentSelection &&
+      userObject.round == currentRound &&
+      opponentObject.round == currentRound
+    ) {
       console.log("Opponent Has Selected");
       processOutcome(userObject.currentSelection);
     } else {
@@ -101,7 +106,7 @@ let gameCode = function() {
   function startNewRound() {
     console.log("New round started.");
     // Clears previous player selection.
-    userObject.round = currentRound
+    userObject.round = currentRound;
     userObject.currentSelection = "";
     databaseModify.update();
     // Starts timer. TBC
@@ -153,8 +158,6 @@ let gameCode = function() {
       console.log("Still waiting");
     }
   }
-
-
 
   function timerRanOut(playerSelections) {
     console.log("Time's up!");
@@ -212,7 +215,7 @@ let gameCode = function() {
 
   function userWins() {
     // Add 1 to player win count.
-    userObject.wins++
+    userObject.wins++;
     databaseModify.update();
     // Show win screen.
     userScreen.win();
@@ -224,7 +227,7 @@ let gameCode = function() {
 
   function userLoses() {
     // Add 1 to player loss count.
-    userObject.losses++
+    userObject.losses++;
     databaseModify.update();
     // Show lose screen.
     userScreen.lose();
@@ -299,32 +302,62 @@ let userScreenCode = function() {
 
   function chooseYourMoveScreen() {
     console.log("Showing player choice screen.");
+    // Hides waiting screen.
+    $("#waiting-for-opponent-screen").css("display", "none");
+    $("#outcome-screen").css("display", "none");
+
     // Displays player choice screen.
+    $("#opponent-found-screen").css("display", "none");
+    $("#player-choice-screen").css("display", "block");
   }
 
   function awaitingOpponentMoveScreen(userChoice) {
     console.log("Waiting for opponent selection. Your pick: " + userChoice);
     // Displays awaiting opponent choice screen.
+    $("#player-choice-screen").css("display", "none");
+    $("#waiting-for-opponent-choice-screen").css("display", "block");
   }
 
   function showThatOtherPlayerHasSelected() {
     console.log("Your opponent has already chosen. Better hurry!");
     // Displays hurry up screen.
+    $("#opponent-chose-first-screen").css("display", "block");
   }
 
   function youWinScreen() {
     console.log("Showing player win screen.");
+    $("#player-choice-screen").css("display", "none");
+    $("#waiting-for-opponent-choice-screen").css("display", "none");
+    $("#opponent-chose-first-screen").css("display", "none");
     // Displays player win screen.
+    $("#outcome-screen").css("display", "block");
+    $("#player-choice").html("Your choice: " + userObject.currentSelection);
+    $("#opponent-choice").html("Your opponent's choice: " + opponentObject.currentSelection);
+    $("#final-outcome").html("You win!");
   }
 
   function youLoseScreen() {
     console.log("Showing player lose screen.");
+    $("#player-choice-screen").css("display", "none");
+    $("#waiting-for-opponent-choice-screen").css("display", "none");
+    $("#opponent-chose-first-screen").css("display", "none");
     // Displays player lose screen.
+    $("#outcome-screen").css("display", "block");
+    $("#player-choice").html("Your choice: " + userObject.currentSelection);
+    $("#opponent-choice").html("Your opponent's choice: " + opponentObject.currentSelection);
+    $("#final-outcome").html("You lose :(");
   }
 
   function youTiedScreen() {
     console.log("Showing tie screen.");
+    $("#player-choice-screen").css("display", "none");
+    $("#waiting-for-opponent-choice-screen").css("display", "none");
+    $("#opponent-chose-first-screen").css("display", "none");
     // Displays tie screen.
+    $("#outcome-screen").css("display", "block");
+    $("#player-choice").html("Your choice: " + userObject.currentSelection);
+    $("#opponent-choice").html("Your opponent's choice: " + opponentObject.currentSelection);
+    $("#final-outcome").html("It's a tie!");
   }
 
   function updateUserDetailsWindow() {
@@ -403,7 +436,7 @@ let playerObjectStructure = {
   losses: 0,
   alias: "",
   currentSelection: "",
-  round:0
+  round: 0
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -506,8 +539,6 @@ let databaseModifyCode = function() {
 };
 
 let databaseModify = databaseModifyCode();
-
-game.initialise();
 
 // TO Do List
 //replace all DatabaseModify references in the game IIFE with a chage to the userObject and then databaseModify.update()

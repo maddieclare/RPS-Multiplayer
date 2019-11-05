@@ -74,22 +74,19 @@
           </div>
         </div>
       </div>
-      <div class="row" id="opponent-found-screen">
-        <div class="col-md-12">
-          <h4>Match found!</h4>
-          <p>Loading game...</p>
-          <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-        </div>
-      </div>
       <div class="row" id="player-choice-screen">
         <div class="col-md-12">
           <p>Click rock, paper or scissors below to make your choice.</p>
           <br />
-          <button class="btn-primary" id="rock">Rock</button>
-          <button class="btn-primary" id="paper">Rock</button>
-          <button class="btn-primary" id="scissors">Rock</button>
+          <button class="btn-primary player-choice-button" id="rock">
+            Rock
+          </button>
+          <button class="btn-primary player-choice-button" id="paper">
+            Paper
+          </button>
+          <button class="btn-primary player-choice-button" id="scissors">
+            Scissors
+          </button>
         </div>
       </div>
       <div class="row" id="waiting-for-opponent-choice-screen">
@@ -108,35 +105,27 @@
       </div>
       <div class="row" id="outcome-screen">
         <div class="col-md-12">
-          <h4>Your choice:</h4>
-          <h4>Your opponent's choice:</h4>
+          <h4 id="player-choice"></h4>
+          <h4 id="opponent-choice"></h4>
           <br />
-          <h2>You</h2>
-        </div>
-      </div>
-      <div class="row" id="starting-new-round-screen">
-        <div class="col-md-12">
-          <p>Starting a new round...</p>
-          <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
+          <h2 id="final-outcome"></h2>
         </div>
       </div>
     </div>
     <script src="assets/javascript/logic.js"></script>
     <script>
       game.initialise();
-      
-      userScreen.welcome();
 
       $("#confirm-alias-button").on("click", function(event) {
         event.preventDefault();
         let playerAlias = $("#player-alias-value").val();
         game.newUserAlias(playerAlias);
-        userScreen.awaitingOpponent();
       });
 
-
+      $(".player-choice-button").on("click", function(event) {
+        let playerChoice = (event.target.id);
+        game.userSelected(playerChoice);
+      });
     </script>
   </body>
 </html>
