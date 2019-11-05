@@ -3,6 +3,7 @@ let userAlias = "";
 let opponentAlias = "";
 let wins = 0;
 let losses = 0;
+let userUniqueId = "";
 
 let userObject = {
   id: "",
@@ -23,8 +24,11 @@ let opponentObject = {
 
 let gameCode = function() {
   function initialiseTheGame() {
-    databaseModify.create();
-    userScreen.welcome();
+    databaseModify.create().then(()=>{
+      databaseModify.userListen()
+      userScreen.welcome();
+    })
+    
   }
 
   function setUserAlias(newAlias) {
@@ -32,15 +36,25 @@ let gameCode = function() {
     // Stores player alias.
     userObject.alias = newAlias;
     console.log(newAlias);
-    databaseModify.update();
-    userScreen.update();
-    console.log("setUserAlias working");
-    userScreen.awaitingOpponent();
-    databaseModify.search();
+    databaseModify.update().then(() => {
+      userScreen.update();
+      console.log("ready to search")
+      userScreen.awaitingOpponent();
+      //databaseModify.search();
+    });
+  
   }
 
-  function opponentFound(opponentProfile) {
-    console.log("In Game, time to put opponent into the game");
+  function processUserObjectChange(){
+    console.log("Processing user object change")
+    console.log(userObject)
+  }
+
+  function opponentFound(opponentProfile, opponentRef) {
+    opponentObject = opponentProfile;
+    userObject.opponentId = opponentRef;
+    databaseModify.lockInOpponent(opponentRef);
+    databaseModify.update();
   }
 
   function startTheGame(opponentName) {
@@ -210,6 +224,7 @@ let gameCode = function() {
   return {
     initialise: initialiseTheGame,
     newUserAlias: setUserAlias,
+    userObjectChanged:processUserObjectChange,
     start: startTheGame,
     newRound: startNewRound,
     userSelected: userSelectionInput,
@@ -339,11 +354,20 @@ const firebaseConfig = {
   appId: "1:396098819277:web:c67c1624d8211a35860584"
 };
 
+let playerObjectStructure = {
+  id: "",
+  opponentId: "",
+  wins: 0,
+  losses: 0,
+  alias: "",
+  currentSelection: ""
+};
+
 firebase.initializeApp(firebaseConfig);
 
 let database = firebase.database();
 
-// Opponent join = game.start(opponentName)
+//To Be Deleted
 function testButtonClick() {
   console.log("Test button working");
   userObject.currentSelection = "Testy Selection";
@@ -351,53 +375,55 @@ function testButtonClick() {
 }
 
 let databaseModifyCode = function() {
-  function updateDatabase() {
-    console.log("Setting:");
-    console.log(userObject.id);
-    console.log("To:");
-    console.log(userObject);
-    firebase
-      .database()
-      .ref("Players/" + userObject.id)
-      .update(userObject);
-  }
-
-  // Event listener for database changes.
-  function createUserInDatabaseAndListen() {
-    database
+  function createUserInDatabaseAndGetUniqueId() {
+    return database
       .ref("Players")
-      .push(userObject)
+      .push(playerObjectStructure)
       .then(function(newEntry) {
-        userObject.id = newEntry.key;
-        console.log("Creating listener: " + userObject.id);
-        let userProfileChange = firebase
-          .database()
-          .ref("Players/" + userObject.id);
-        userProfileChange.on("value", function(snapshot) {
-          console.log("Change on the users profile in the database");
-          console.log(snapshot.val());
-        });
+        return (userUniqueId = newEntry.key);
       });
   }
 
+  function startListeningToPlayerObject() {
+    console.log("Creating listener: " + userUniqueId);
+    let userProfileChange = firebase.database().ref("Players/" + userUniqueId);
+    userProfileChange.on("value", function(snapshot) {
+      console.log("Change on the users profile in the database");
+      console.log(snapshot.val());
+      userObject = snapshot.val();
+      game.userObjectChanged()
+    });
+  }
+
+  function updateDatabase() {
+    console.log("Setting:");
+    console.log(userUniqueId);
+    console.log("To:");
+    console.log(userObject);
+    return firebase
+      .database()
+      .ref("Players/" + userUniqueId)
+      .update(userObject);
+  }
+
   function listenForNewPlayer() {
+    //TBC
     let databaseChange = database.ref("Players").orderByKey();
     databaseChange.on("value", function(snapshot) {
       console.log("Overall Database Listener detected a change:");
       console.log(snapshot.val());
       snapshot.forEach(function(childSnapshot) {
-        if (childSnapshot.key !== userObject.id) {
+        if (childSnapshot.key !== userUniqueId) {
           let otherPlayerData = childSnapshot.val();
-          if (
-            otherPlayerData.opponentId == "" &&
-            otherPlayerData.alias !== ""
-          ) {
+          if (otherPlayerData.opponentId == "") {
             console.log(
-              "Found player without an opponent: " + otherPlayerData.alias
+              "Found player without an opponent: " +
+                otherPlayerData.alias +
+                ". Waiting for registration."
             );
             console.log(otherPlayerData);
             databaseChange.off();
-            game.opponentFound(otherPlayerData);
+            game.opponentFound(otherPlayerData, childSnapshot.key);
             return true;
           }
         }
@@ -405,10 +431,21 @@ let databaseModifyCode = function() {
     });
   }
 
+  function setOpponentIdAttributeToUserId(opponentKey) {
+    console.log("Updating opponent:");
+    console.log(opponentKey);
+    firebase
+      .database()
+      .ref("Players/" + opponentKey)
+      .set(userObject.id);
+  }
+
   return {
     update: updateDatabase,
-    create: createUserInDatabaseAndListen,
-    search: listenForNewPlayer
+    create: createUserInDatabaseAndGetUniqueId,
+    userListen: startListeningToPlayerObject,
+    search: listenForNewPlayer,
+    lockInOpponent: setOpponentIdAttributeToUserId
   };
 };
 
