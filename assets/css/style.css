@@ -1,0 +1,35 @@
+#alias-select-screen {
+  display: none;
+}
+
+#instructions-screen {
+  display: none;
+}
+
+#waiting-for-opponent-screen {
+  display: none;
+}
+
+#opponent-found-screen {
+  display: none;
+}
+
+#player-choice-screen {
+  display: none;
+}
+
+#waiting-for-opponent-choice-screen {
+  display: none;
+}
+
+#opponent-chose-first-screen {
+  display: none;
+}
+
+#outcome-screen {
+  display: none;
+}
+
+#starting-new-round-screen {
+  display: none;
+}

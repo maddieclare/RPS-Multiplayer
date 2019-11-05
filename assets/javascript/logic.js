@@ -4,7 +4,8 @@ let opponentAlias = "";
 let wins = 0;
 let losses = 0;
 let userUniqueId = "";
-let opponentReady = false
+let opponentReady = false;
+let currentRound = 0
 
 let userObject = {
   id: "",
@@ -12,8 +13,8 @@ let userObject = {
   wins: 0,
   losses: 0,
   alias: "",
-  currentSelection: ""
-
+  currentSelection: "",
+  round:0
 };
 
 let opponentObject = {
@@ -21,16 +22,16 @@ let opponentObject = {
   wins: 0,
   losses: 0,
   alias: "",
-  currentSelection: ""
+  currentSelection: "",
+  round:0
 };
 
 let gameCode = function() {
   function initialiseTheGame() {
-    databaseModify.create().then(()=>{
-      databaseModify.userListen()
+    databaseModify.create().then(() => {
+      databaseModify.userListen();
       userScreen.welcome();
-    })
-    
+    });
   }
 
   function setUserAlias(newAlias) {
@@ -40,92 +41,102 @@ let gameCode = function() {
     console.log(newAlias);
     databaseModify.update().then(() => {
       userScreen.update();
-      console.log("ready to search")
+      console.log("ready to search");
       userScreen.awaitingOpponent();
-      if(!userObject.opponentId){
+      if (!userObject.opponentId) {
         databaseModify.search();
       } else {
-        console.log("Game is ready to start")
+        databaseModify.opponentListen();
+        console.log("Game is ready to start");
+        startTheGame();
       }
     });
-  
   }
 
-  function processUserObjectChange(){
-    console.log("Processing user object change")
-    console.log(userObject)
+  function processUserObjectChange() {
+    console.log("Processing user object change");
+    console.log(userObject);
   }
 
   function opponentFound(opponentProfile, opponentRef) {
     opponentObject = opponentProfile;
-    opponentObject.opponentId = userUniqueId
+    opponentObject.opponentId = userUniqueId;
     userObject.opponentId = opponentRef;
-    if(opponentProfile.alias){
-      opponentReady = true
+    if (opponentProfile.alias) {
+      opponentReady = true;
     }
-    databaseModify.lockInOpponent(opponentProfile,opponentRef);
-    databaseModify.opponentListen()
-    databaseModify.update().then(function(){
-      userScreen.update()
-      startTheGame()
-    })
+    databaseModify.lockInOpponent(opponentProfile, opponentRef);
+    databaseModify.opponentListen();
+    databaseModify.update().then(function() {
+      userScreen.update();
+      startTheGame();
+    });
   }
 
-  function processOpponentObjectChange(){
-    console.log("Processing opponent object change")
-    console.log(opponentObject)
-    if(!opponentReady && opponentObject.alias){
-      console.log("Opponent is now ready")
-      opponentReady = true
-      startTheGame()
-      
+  function processOpponentObjectChange() {
+    console.log("Processing opponent object change");
+    console.log(opponentObject);
+    console.log("opponent ready: " + opponentReady);
+    if (!opponentReady && opponentObject.alias) {
+      console.log("Opponent is now ready");
+      opponentReady = true;
+      startTheGame();
+    } else if (opponentReady && opponentObject.currentSelection && userObject.round == currentRound && opponentObject.round == currentRound) {
+      console.log("Opponent Has Selected");
+      processOutcome(userObject.currentSelection);
+    } else {
+      console.log("Some other change happened");
     }
-
   }
 
   function startTheGame() {
-   if(opponentReady){
-      console.log("Starting the Game")
+    if (opponentReady) {
+      console.log("Starting the Game");
+      startNewRound();
     } else {
-      console.log("Opponent hasn't set an alias")
+      console.log("Opponent hasn't set an alias");
     }
-    
   }
 
   function startNewRound() {
     console.log("New round started.");
     // Clears previous player selection.
+    currentRound++
+    userObject.round = currentRound
     userObject.currentSelection = "";
     databaseModify.update();
-    // Starts timer.
+    // Starts timer. TBC
     // Displays user selection screen.
     userScreen.choose();
   }
 
   function userSelectionInput(selection) {
     // Updates player selection in playerObject.
-    userObject.currentSelection(selection);
-    databaseModify.update();
-    // Shows screen letting player know opponent is still selecting.
-    userScreen.awaitingOpponentChoice(selection);
+    console.log("User made selection: " + selection);
+    userObject.currentSelection = selection;
+    databaseModify.update().then(function() {
+      console.log("checking if selected");
+      if (opponentObject.currentSelection) {
+        //opponent already picked
+        console.log("Opponent had already picked");
+        processOutcome(selection);
+      } else {
+        // Shows screen letting player know opponent is still selecting.
+        console.log("Still waiting on opponent");
+        userScreen.awaitingOpponentChoice(selection);
+      }
+    });
   }
 
-  function eitherPlayerMakesASelection(playerSelections) {
-    // If both players have selected:
-    if (playerSelections.user && playerSelections.opponent) {
-      // Display player/opponent choices.
-      console.log(
-        "Your choice: " +
-          playerSelections.user +
-          ". Your opponent's choice: " +
-          playerSelections.opponent +
-          "."
-      );
-      // Call determineOutcome function.
+  function processOutcome() {
+    console.log("Processing outcome: " + userObject.currentSelection);
+    if (userObject.currentSelection && opponentObject.currentSelection) {
+      let playerSelections = {
+        user: userObject.currentSelection,
+        opponent: opponentObject.currentSelection
+      };
       let result = determineOutcome(playerSelections);
-      console.log("You " + result + "!");
-      // Sub-if statement:
-      // Show win screen for one player and loss for the other, or tie for both.
+
       if (result == "win") {
         userWins({ playerSelections: playerSelections, source: "selections" });
       } else if (result == "tie") {
@@ -139,17 +150,12 @@ let gameCode = function() {
           location: "eitherPlayerMakesASelection"
         });
       }
-      // Else if only player 1 has made a selection:
-    } else if (playerSelections.user) {
-      // Show player selection.
-      // Let player know opponent is still choosing.
-      userScreen.awaitingOpponentChoice(playerSelections.user);
-      // Else if only opponent has made a selection:
-    } else if (playerSelections.opponent) {
-      // Tell player to hurry up.
-      userScreen.opponentHasSelected();
+    } else {
+      console.log("Still waiting");
     }
   }
+
+
 
   function timerRanOut(playerSelections) {
     console.log("Time's up!");
@@ -166,6 +172,8 @@ let gameCode = function() {
 
   function determineOutcome(playerSelections) {
     // Get player/opponent selections.
+    console.log("Determining Outcome");
+    console.log(playerSelections);
     let userSelection = playerSelections.user;
     let opponentSelection = playerSelections.opponent;
     // If both players make the same selection, return tie result.
@@ -205,7 +213,8 @@ let gameCode = function() {
 
   function userWins() {
     // Add 1 to player win count.
-    databaseModify.win();
+    userObject.wins++
+    databaseModify.update();
     // Show win screen.
     userScreen.win();
     // Call new round function after a few seconds.
@@ -216,7 +225,8 @@ let gameCode = function() {
 
   function userLoses() {
     // Add 1 to player loss count.
-    databaseModify.lose();
+    userObject.losses++
+    databaseModify.update();
     // Show lose screen.
     userScreen.lose();
     // Call new round function after a few seconds
@@ -251,12 +261,11 @@ let gameCode = function() {
   return {
     initialise: initialiseTheGame,
     newUserAlias: setUserAlias,
-    userObjectChanged:processUserObjectChange,
-    opponentObjectChanged:processOpponentObjectChange,
+    userObjectChanged: processUserObjectChange,
+    opponentObjectChanged: processOpponentObjectChange,
     start: startTheGame,
     newRound: startNewRound,
     userSelected: userSelectionInput,
-    selection: eitherPlayerMakesASelection,
     timeUp: timerRanOut,
     win: userWins,
     lose: userLoses,
@@ -388,7 +397,8 @@ let playerObjectStructure = {
   wins: 0,
   losses: 0,
   alias: "",
-  currentSelection: ""
+  currentSelection: "",
+  round:0
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -398,8 +408,7 @@ let database = firebase.database();
 //To Be Deleted
 function testButtonClick() {
   console.log("Test button working");
-  userObject.currentSelection = "Testy Selection";
-  databaseModify.update();
+  game.userSelected("rock");
 }
 
 let databaseModifyCode = function() {
@@ -419,7 +428,7 @@ let databaseModifyCode = function() {
       console.log("Change on the users profile in the database");
       console.log(snapshot.val());
       userObject = snapshot.val();
-      game.userObjectChanged()
+      game.userObjectChanged();
     });
   }
 
@@ -435,7 +444,7 @@ let databaseModifyCode = function() {
   }
 
   function listenForNewPlayer() {
-    console.log("Starting to search for new player")
+    console.log("Starting to search for new player");
     let databaseChange = database.ref("Players").orderByKey();
     databaseChange.on("value", function(snapshot) {
       console.log("Overall Database Listener detected a change:");
@@ -459,7 +468,7 @@ let databaseModifyCode = function() {
     });
   }
 
-  function setOpponentIdAttributeToUserId(opponentProfile,opponentKey) {
+  function setOpponentIdAttributeToUserId(opponentProfile, opponentKey) {
     console.log("Updating opponent:");
     console.log(opponentKey);
     firebase
@@ -468,14 +477,16 @@ let databaseModifyCode = function() {
       .set(opponentProfile);
   }
 
-  function startListeningToOpponent(){
+  function startListeningToOpponent() {
     console.log("Creating listener: " + userObject.opponentId);
-    let userProfileChange = firebase.database().ref("Players/" + userObject.opponentId);
-    userProfileChange.on("value", function(snapshot) {
+    let opponentProfileChange = firebase
+      .database()
+      .ref("Players/" + userObject.opponentId);
+    opponentProfileChange.on("value", function(snapshot) {
       console.log("Change on the opponents profile in the database");
       console.log(snapshot.val());
       opponentObject = snapshot.val();
-      game.opponentObjectChanged()
+      game.opponentObjectChanged();
     });
   }
 
