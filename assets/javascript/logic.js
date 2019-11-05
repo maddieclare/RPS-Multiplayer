@@ -40,7 +40,11 @@ let gameCode = function() {
       userScreen.update();
       console.log("ready to search")
       userScreen.awaitingOpponent();
-      //databaseModify.search();
+      if(!userObject.opponentId){
+        databaseModify.search();
+      } else {
+        console.log("Game is ready to start")
+      }
     });
   
   }
@@ -52,17 +56,28 @@ let gameCode = function() {
 
   function opponentFound(opponentProfile, opponentRef) {
     opponentObject = opponentProfile;
+    opponentObject.opponentId = userUniqueId
     userObject.opponentId = opponentRef;
-    databaseModify.lockInOpponent(opponentRef);
-    databaseModify.update();
+    databaseModify.lockInOpponent(opponentProfile,opponentRef);
+    databaseModify.update().then(function(){
+      userScreen.update()
+      startTheGame()
+    })
   }
 
-  function startTheGame(opponentName) {
+  function processOpponentObjectChange(){
+    console.log("Processing opponent object change")
+    console.log(opponentObject)
+  }
+
+  function startTheGame() {
     // Sets opponent alias.
-    opponentAlias = opponentName;
-    console.log(opponentAlias);
-    // Starts a new round.
-    startNewRound();
+    if(opponentObject.alias){
+      console.log("Starting the Game")
+    } else {
+      console.log("Opponent hasn't set an alias")
+    }
+    
   }
 
   function startNewRound() {
@@ -225,6 +240,7 @@ let gameCode = function() {
     initialise: initialiseTheGame,
     newUserAlias: setUserAlias,
     userObjectChanged:processUserObjectChange,
+    opponentObjectChanged:processOpponentObjectChange,
     start: startTheGame,
     newRound: startNewRound,
     userSelected: userSelectionInput,
@@ -407,7 +423,7 @@ let databaseModifyCode = function() {
   }
 
   function listenForNewPlayer() {
-    //TBC
+    console.log("Starting to search for new player")
     let databaseChange = database.ref("Players").orderByKey();
     databaseChange.on("value", function(snapshot) {
       console.log("Overall Database Listener detected a change:");
@@ -431,13 +447,24 @@ let databaseModifyCode = function() {
     });
   }
 
-  function setOpponentIdAttributeToUserId(opponentKey) {
+  function setOpponentIdAttributeToUserId(opponentProfile,opponentKey) {
     console.log("Updating opponent:");
     console.log(opponentKey);
     firebase
       .database()
       .ref("Players/" + opponentKey)
-      .set(userObject.id);
+      .set(opponentProfile);
+  }
+
+  function startListeningToOpponent(){
+    console.log("Creating listener: " + userObject.opponentId);
+    let userProfileChange = firebase.database().ref("Players/" + userObject.opponentId);
+    userProfileChange.on("value", function(snapshot) {
+      console.log("Change on the opponents profile in the database");
+      console.log(snapshot.val());
+      opponentObject = snapshot.val();
+      game.opponentObjectChanged()
+    });
   }
 
   return {
@@ -445,7 +472,8 @@ let databaseModifyCode = function() {
     create: createUserInDatabaseAndGetUniqueId,
     userListen: startListeningToPlayerObject,
     search: listenForNewPlayer,
-    lockInOpponent: setOpponentIdAttributeToUserId
+    lockInOpponent: setOpponentIdAttributeToUserId,
+    opponentListen: startListeningToOpponent
   };
 };
 
