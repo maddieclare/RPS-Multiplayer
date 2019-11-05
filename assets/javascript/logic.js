@@ -4,6 +4,7 @@ let opponentAlias = "";
 let wins = 0;
 let losses = 0;
 let userUniqueId = "";
+let opponentReady = false
 
 let userObject = {
   id: "",
@@ -12,6 +13,7 @@ let userObject = {
   losses: 0,
   alias: "",
   currentSelection: ""
+
 };
 
 let opponentObject = {
@@ -58,7 +60,11 @@ let gameCode = function() {
     opponentObject = opponentProfile;
     opponentObject.opponentId = userUniqueId
     userObject.opponentId = opponentRef;
+    if(opponentProfile.alias){
+      opponentReady = true
+    }
     databaseModify.lockInOpponent(opponentProfile,opponentRef);
+    databaseModify.opponentListen()
     databaseModify.update().then(function(){
       userScreen.update()
       startTheGame()
@@ -68,11 +74,17 @@ let gameCode = function() {
   function processOpponentObjectChange(){
     console.log("Processing opponent object change")
     console.log(opponentObject)
+    if(!opponentReady && opponentObject.alias){
+      console.log("Opponent is now ready")
+      opponentReady = true
+      startTheGame()
+      
+    }
+
   }
 
   function startTheGame() {
-    // Sets opponent alias.
-    if(opponentObject.alias){
+   if(opponentReady){
       console.log("Starting the Game")
     } else {
       console.log("Opponent hasn't set an alias")
