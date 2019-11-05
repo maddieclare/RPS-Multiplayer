@@ -1,103 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <title>Rock, Paper, Scissors</title>
-</head>
-<body>
-  <div class="container" id "title-container">
-    <div class="row jumbotron" id="title">
-      <div class="col-lg-12">
-        <h1>Rock, paper, scissors</h1>
-        <h4>Multiplayer edition</h4>
-        <br>
-      </div>
-    </div>
-  </div>
-  <div class="container" id="game-container">
-    <div class="row" id="alias-select-screen">
-      <div class="col-md-4">
-        <label for="player-alias-value">Player alias:</label>
-        <input type="text" 
-        class="form-control" 
-        id="player-alias-value" 
-        placeholder="Player alias" 
-        value="Your name" required>
-        <br>
-        <button class="btn btn-primary" type="submit">Start</button>
-      </div>
-    </div>
-    <div class="row" id="instructions-screen">
-      <div class="col-md-12">
-        <br>
-        <h4>Instructions</h4>
-        <p>1. Enter your preferred username above and click 'Start'.</p>
-        <p>2. You will be matched to another player (if available).</p>
-        <p>3. Click either the rock, paper or scissors button to choose.
-        <p>4. Repeat steps 1-3!</p>
-      </div>
-    </div>
-    <div class="row" id="waiting-for-opponent-screen">
-      <div class="col-md-12">
-        <h4>Please wait...</h4>
-        <p>Matching you to another player.</p>
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.2.3/firebase-database.js"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container" id="title-container">
+      <div class="row jumbotron" id="title">
+        <div class="col-lg-12">
+          <h1>Rock, paper, scissors</h1>
+          <h4>Multiplayer edition</h4>
+          <br />
         </div>
       </div>
     </div>
-    <div class="row" id="opponent-found-screen">
-      <div class="col-md-12">
-        <h4>Match found!</h4>
-        <p>Loading game...</p>
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
+    <div class="container" id="game-container">
+      <div class="row" id="alias-select-screen">
+        <div class="col-md-4">
+          <label for="player-alias-value">Player alias:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="player-alias-value"
+            placeholder="Player alias"
+            value="Your name"
+            required
+          />
+          <br />
+          <button
+            class="btn btn-primary"
+            type="submit"
+            id="confirm-alias-button"
+          >
+            Start
+          </button>
+        </div>
+      </div>
+      <div class="row" id="instructions-screen">
+        <div class="col-md-12">
+          <br />
+          <h4>Instructions</h4>
+          <p>1. Enter your preferred username above and click 'Start'.</p>
+          <p>2. You will be matched to another player (if available).</p>
+          <p>3. Click either the rock, paper or scissors button to choose.</p>
+          <p>4. Repeat steps 1-3!</p>
+        </div>
+      </div>
+      <div class="row" id="waiting-for-opponent-screen">
+        <div class="col-md-12">
+          <h4>Please wait...</h4>
+          <p>Matching you to another player.</p>
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </div>
+      <div class="row" id="opponent-found-screen">
+        <div class="col-md-12">
+          <h4>Match found!</h4>
+          <p>Loading game...</p>
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </div>
+      <div class="row" id="player-choice-screen">
+        <div class="col-md-12">
+          <p>Click rock, paper or scissors below to make your choice.</p>
+          <br />
+          <button class="btn-primary" id="rock">Rock</button>
+          <button class="btn-primary" id="paper">Rock</button>
+          <button class="btn-primary" id="scissors">Rock</button>
+        </div>
+      </div>
+      <div class="row" id="waiting-for-opponent-choice-screen">
+        <div class="col-md-12">
+          <h4>Your choice:</h4>
+          <p>Waiting for your opponent to choose...</p>
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </div>
+      <div class="row" id="opponent-chose-first-screen">
+        <div class="col-md-12">
+          <p><b>Your opponent has made their selection!</b></p>
+        </div>
+      </div>
+      <div class="row" id="outcome-screen">
+        <div class="col-md-12">
+          <h4>Your choice:</h4>
+          <h4>Your opponent's choice:</h4>
+          <br />
+          <h2>You</h2>
+        </div>
+      </div>
+      <div class="row" id="starting-new-round-screen">
+        <div class="col-md-12">
+          <p>Starting a new round...</p>
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
         </div>
       </div>
     </div>
-    <div class="row" id="player-choice-screen">
-      <div class="col-md-12">
-        <p>Click rock, paper or scissors below to make your choice.</p>
-        <br>
-        <button class="btn-primary" id="rock">Rock</button>
-        <button class="btn-primary" id="paper">Rock</button>
-        <button class="btn-primary" id="scissors">Rock</button>
-      </div>
-    </div>
-    <div class="row" id="waiting-for-opponent-choice-screen">
-      <div class="col-md-12">
-        <h4>Your choice: </h4>
-        <p>Waiting for your opponent to choose...</p>
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </div>
-    <div class="row" id="opponent-chose-first-screen">
-      <div class="col-md-12">
-       <p><b>Your opponent has made their selection!</b></p>
-      </div>
-    </div>
-    <div class="row" id="outcome-screen">
-      <div class="col-md-12">
-        <h4>Your choice: </h4>
-        <h4>Your opponent's choice: </h4>
-        <br>
-        <h2>You </h2>
-      </div>
-    </div>
-    <div class="row" id="starting-new-round-screen">
-      <div class="col-md-12">
-        <p>Starting a new round...</p>
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</body>
+    <script src="assets/javascript/logic.js"></script>
+    <script>
+      game.initialise();
+      
+      userScreen.welcome();
+
+      $("#confirm-alias-button").on("click", function(event) {
+        event.preventDefault();
+        let playerAlias = $("#player-alias-value").val();
+        game.newUserAlias(playerAlias);
+
+      });
+
+
+    </script>
+  </body>
 </html>

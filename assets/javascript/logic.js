@@ -101,7 +101,6 @@ let gameCode = function() {
   function startNewRound() {
     console.log("New round started.");
     // Clears previous player selection.
-    currentRound++
     userObject.round = currentRound
     userObject.currentSelection = "";
     databaseModify.update();
@@ -136,7 +135,7 @@ let gameCode = function() {
         opponent: opponentObject.currentSelection
       };
       let result = determineOutcome(playerSelections);
-
+      currentRound++;
       if (result == "win") {
         userWins({ playerSelections: playerSelections, source: "selections" });
       } else if (result == "tie") {
@@ -283,8 +282,10 @@ let userScreenCode = function() {
   function welcomeScreen() {
     console.log("Welcome!");
     // Displays welcome screen.
-    // Instructions?
     // Prompts player to enter alias.
+    $("#alias-select-screen").css("display", "block");
+    // Instructions?
+    $("#instructions-screen").css("display", "block");
   }
 
   function awaitingOpponentScreen() {
