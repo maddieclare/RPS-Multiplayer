@@ -33,3 +33,7 @@
 #starting-new-round-screen {
   display: none;
 }
+
+#score-container {
+    text-align: right;
+}

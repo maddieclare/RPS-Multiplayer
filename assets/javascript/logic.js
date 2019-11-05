@@ -289,6 +289,7 @@ let userScreenCode = function() {
     $("#alias-select-screen").css("display", "block");
     // Instructions?
     $("#instructions-screen").css("display", "block");
+    userScreen.update();
   }
 
   function awaitingOpponentScreen() {
@@ -309,6 +310,7 @@ let userScreenCode = function() {
     // Displays player choice screen.
     $("#opponent-found-screen").css("display", "none");
     $("#player-choice-screen").css("display", "block");
+    userScreen.update();
   }
 
   function awaitingOpponentMoveScreen(userChoice) {
@@ -316,12 +318,6 @@ let userScreenCode = function() {
     // Displays awaiting opponent choice screen.
     $("#player-choice-screen").css("display", "none");
     $("#waiting-for-opponent-choice-screen").css("display", "block");
-  }
-
-  function showThatOtherPlayerHasSelected() {
-    console.log("Your opponent has already chosen. Better hurry!");
-    // Displays hurry up screen.
-    $("#opponent-chose-first-screen").css("display", "block");
   }
 
   function youWinScreen() {
@@ -363,6 +359,9 @@ let userScreenCode = function() {
   function updateUserDetailsWindow() {
     console.log("User info updated.");
     // Show player alias, wins and losses in corner.
+    $("#wins").html("Wins: " + userObject.wins)
+    $("#losses").html("Losses: " + userObject.losses)
+    $("#rounds").html("Rounds: " + userObject.round)
   }
 
   function showErrorScreen() {
@@ -375,7 +374,6 @@ let userScreenCode = function() {
     awaitingOpponent: awaitingOpponentScreen,
     choose: chooseYourMoveScreen,
     awaitingOpponentChoice: awaitingOpponentMoveScreen,
-    opponentHasSelected: showThatOtherPlayerHasSelected,
     win: youWinScreen,
     lose: youLoseScreen,
     tied: youTiedScreen,
