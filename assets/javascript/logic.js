@@ -290,7 +290,11 @@ let userScreenCode = function() {
 
   function awaitingOpponentScreen() {
     console.log("Waiting for another player to join...");
+    // Hides welcome screen.
+    $("#alias-select-screen").css("display", "none");
+    $("#instructions-screen").css("display", "none");
     // Displays waiting screen.
+    $("#waiting-for-opponent-screen").css("display", "block");
   }
 
   function chooseYourMoveScreen() {

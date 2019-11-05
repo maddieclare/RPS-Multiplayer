@@ -133,7 +133,7 @@
         event.preventDefault();
         let playerAlias = $("#player-alias-value").val();
         game.newUserAlias(playerAlias);
-
+        userScreen.awaitingOpponent();
       });
 
 
