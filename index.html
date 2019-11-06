@@ -62,7 +62,7 @@
           <p>1. Enter your preferred username above and click 'Start'.</p>
           <p>2. You will be matched to another player (if available).</p>
           <p>3. Click either the rock, paper or scissors button to choose.</p>
-          <p>4. Repeat steps 1-3!</p>
+          <p>4. Repeat step 3!</p>
         </div>
       </div>
       <div class="row" id="waiting-for-opponent-screen">
@@ -109,12 +109,14 @@
     </div>
     <div class="container" id="score-container">
       <div class="col-md-12">
-        <p id="wins">Wins: </p>
-        <p id="losses">Losses: </p>
-        <p id="rounds">Rounds: </p>
+        <p id="wins"></p>
+        <p id="losses"></p>
+        <p id="rounds"></p>
       </div>
     </div>
     <script src="assets/javascript/logic.js"></script>
+    <script src="assets/javascript/game.js"></script>
+    <script src="assets/javascript/interface.js"></script>
     <script>
       game.initialise();
 
@@ -125,7 +127,7 @@
       });
 
       $(".player-choice-button").on("click", function(event) {
-        let playerChoice = (event.target.id);
+        let playerChoice = event.target.id;
         game.userSelected(playerChoice);
       });
     </script>
